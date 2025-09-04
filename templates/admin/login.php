@@ -1,36 +1,26 @@
 <?php
 
-declare(strict_types=1);
-
-session_start();
-
-require dirname(__DIR__) . '/lib/autoload.php';
-
-use CapsuleLib\Security\Authenticator;
-
-// Remplace par ton propre gestionnaire PDO
-$pdo = new PDO('sqlite:' . __DIR__ . '/../data/site.sqlite');
-
-$error = null;
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $success = Authenticator::login($pdo, $_POST['username'], $_POST['password']);
-
-    if ($success) {
-        header('Location: /admin');
-        exit;
-    }
-
-    $error = "Identifiants incorrects.";
-}
-
+/** @var array<string, string> $str */
 ?>
 
-<h1>Connexion</h1>
-<?php if ($error): ?>
-    <p style="color:red"><?= htmlspecialchars($error) ?></p>
-<?php endif; ?>
-<form method="POST">
-    <label>Nom d'utilisateur : <input name="username" required></label><br>
-    <label>Mot de passe : <input name="password" type="password" required></label><br>
-    <button type="submit">Se connecter</button>
-</form>
+<h1><?= secure_html($title ?? $str['login_title']) ?></h1>
+
+
+
+<section class="login">
+    <form method="POST">
+        <?= \CapsuleLib\Security\CsrfTokenManager::insertInput(); ?>
+
+        <?php if (!empty($error)): ?>
+            <p style="color:red"><?= secure_html($error) ?></p>
+        <?php endif; ?>
+
+        <label for="username"><?= secure_html($str['login_username']) ?></label>
+        <input id="username" name="username" required />
+
+        <label for="password"><?= secure_html($str['login_password']) ?></label>
+        <input id="password" name="password" type="password" required />
+
+        <button type="submit"><?= secure_html($str['login_submit']) ?></button>
+    </form>
+</section>
